@@ -638,9 +638,67 @@
 /* ── Storage ── */
 const ADMIN_PASSWORD = 'lougherne2026';
 const STORAGE_KEY    = 'wedding_rsvps_jemmarory';
-function getRSVPs()       { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch{ return []; } }
-function saveAllRSVPs(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-function saveRSVP(data)   { const l=getRSVPs(); l.push(data); saveAllRSVPs(l); }
+// Optional: set this to your Google Apps Script / API URL for shared, persistent storage.
+const RSVP_API_URL  = '';
+const RSVP_API_KEY  = '';
+
+function withApiKey(url){
+  if(!RSVP_API_KEY) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}key=${encodeURIComponent(RSVP_API_KEY)}`;
+}
+
+function getLocalRSVPs(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
+  catch { return []; }
+}
+
+function saveLocalRSVPs(arr){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+
+async function getRSVPs(){
+  if(!RSVP_API_URL) return getLocalRSVPs();
+  try {
+    const res = await fetch(withApiKey(RSVP_API_URL),{ method:'GET', cache:'no-store' });
+    if(!res.ok) throw new Error('Fetch failed');
+    const data = await res.json();
+    const rows = Array.isArray(data) ? data : (Array.isArray(data.rows) ? data.rows : (Array.isArray(data.data) ? data.data : []));
+    return rows;
+  } catch {
+    return getLocalRSVPs();
+  }
+}
+
+async function saveRSVP(data){
+  if(RSVP_API_URL){
+    try {
+      await fetch(withApiKey(RSVP_API_URL),{
+        method:'POST',
+        // Keep default content-type (text/plain) to avoid CORS preflight in Apps Script web apps.
+        body: JSON.stringify({ action:'create', entry:data })
+      });
+    } catch {}
+  }
+  const local = getLocalRSVPs();
+  local.push(data);
+  saveLocalRSVPs(local);
+}
+
+async function replaceAllRSVPs(arr){
+  if(RSVP_API_URL){
+    try {
+      await fetch(withApiKey(RSVP_API_URL),{
+        method:'POST',
+        // Keep default content-type (text/plain) to avoid CORS preflight in Apps Script web apps.
+        body: JSON.stringify({ action:'replaceAll', rows:arr })
+      });
+    } catch {}
+  }
+  saveLocalRSVPs(arr);
+}
+
+let adminRSVPCache = [];
 
 /* ── RSVP Form ── */
 function toggleAttending(yes){ document.getElementById('attendingFields').style.display=yes?'block':'none'; }
@@ -712,7 +770,7 @@ function updateSteakOptionForGuest(guestNum){
   }
 }
 
-function submitRSVP(){
+async function submitRSVP(){
   const first=document.getElementById('first').value.trim();
   const last=document.getElementById('last').value.trim();
   const att=document.querySelector('input[name="attending"]:checked');
@@ -731,7 +789,7 @@ function submitRSVP(){
     message: document.getElementById('message').value.trim(),
     date:    new Date().toLocaleDateString('en-GB')
   };
-  saveRSVP(entry);
+  await saveRSVP(entry);
   document.getElementById('rsvpForm').style.display='none';
   document.getElementById('rsvpSuccess').style.display='block';
 }
@@ -791,22 +849,22 @@ END:VCALENDAR`;
 }
 
 /* ── Admin ── */
-function checkAdmin(){
+async function checkAdmin(){
   if(document.getElementById('adminPass').value===ADMIN_PASSWORD){
     document.getElementById('adminLock').style.display='none';
     document.getElementById('guestTableWrap').style.display='block';
-    renderGuestTable();
+    await renderGuestTable();
   } else {
     document.getElementById('adminError').style.display='block';
   }
 }
 
-function renderGuestTable(){
+async function renderGuestTable(){
   const search=(document.getElementById('searchGuests')||{value:''}).value.toLowerCase();
-  let list=getRSVPs();
+  const all=await getRSVPs();
+  adminRSVPCache = all;
+  let list=all;
   if(search) list=list.filter(r=>(r.name||'').toLowerCase().includes(search));
-
-  const all=getRSVPs();
   const yesAll=all.filter(r=>r.attending==='yes');
   const totalG=yesAll.reduce((s,r)=>s+(parseInt(r.guests)||1),0);
   document.getElementById('statTotal').textContent=all.length;
@@ -820,7 +878,7 @@ function renderGuestTable(){
   noMsg.style.display='none';
 
   // We need the real index from the full list for edit/delete
-  const fullList=getRSVPs();
+  const fullList=all;
   tbody.innerHTML=list.map(r=>{
     const realIdx=fullList.findIndex(x=>x.name===r.name&&x.date===r.date);
     const extra=(r.extraGuests&&r.extraGuests.length)?r.extraGuests.map(g=>{
@@ -851,14 +909,17 @@ function renderGuestTable(){
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
 /* ── Delete ── */
-function deleteGuest(idx){
+async function deleteGuest(idx){
   if(!confirm('Remove this guest from the list?')) return;
-  const list=getRSVPs(); list.splice(idx,1); saveAllRSVPs(list); renderGuestTable();
+  const list=await getRSVPs();
+  list.splice(idx,1);
+  await replaceAllRSVPs(list);
+  await renderGuestTable();
 }
 
 /* ── Edit ── */
 function openEdit(idx){
-  const r=getRSVPs()[idx];
+  const r=adminRSVPCache[idx];
   if(!r) return;
   const parts=(r.name||'').split(' ');
   document.getElementById('editIndex').value=idx;
@@ -874,9 +935,9 @@ function openEdit(idx){
   document.getElementById('editModal').classList.add('open');
 }
 function closeModal(){ document.getElementById('editModal').classList.remove('open'); }
-function saveEdit(){
+async function saveEdit(){
   const idx=parseInt(document.getElementById('editIndex').value,10);
-  const list=getRSVPs();
+  const list=await getRSVPs();
   if(!list[idx]) return;
   const first=document.getElementById('eFirst').value.trim();
   const last=document.getElementById('eLast').value.trim();
@@ -891,40 +952,100 @@ function saveEdit(){
     song:document.getElementById('eSong').value.trim(),
     message:document.getElementById('eMessage').value.trim(),
   };
-  saveAllRSVPs(list); closeModal(); renderGuestTable();
+  await replaceAllRSVPs(list);
+  closeModal();
+  await renderGuestTable();
 }
 // Close modal on bg click
 document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
 /* ── Excel Export ── */
-function exportToExcel(){
-  const list=getRSVPs();
+async function exportToExcel(){
+  const list=await getRSVPs();
   if(!list.length){ alert('No RSVPs to export yet!'); return; }
-  const rows=list.map(r=>({
-    'Name':             r.name||'',
-    'Attending':        r.attending==='yes'?'Yes':'No',
-    'Party Size':       r.guests||1,
-    'Additional Guests':(r.extraGuests||[]).map(g=>{
-      let desc=`${g.name}`;
-      const meal=g.mainCourse?(g.mainCourse+(g.steakCook?' ('+g.steakCook+')':'')):'';
-      if(meal) desc+=` - ${meal}`;
-      if(g.dietary) desc+=` | Dietary: ${g.dietary}`;
-      if(g.childrensMenu) desc+=' | Children\'s Menu';
-      return desc;
-    }).join('; '),
-    'Main Course':      r.mainCourse||'',
-    'Steak Cook':       r.steakCook||'',
-    'Dietary':          r.dietary||'',
-    'Song Request':     r.song||'',
-    'Message':          r.message||'',
-    'RSVP Date':        r.date||''
-  }));
-  const ws=XLSX.utils.json_to_sheet(rows);
-  // Column widths
-  ws['!cols']=[{wch:22},{wch:10},{wch:11},{wch:50},{wch:18},{wch:14},{wch:22},{wch:24},{wch:40},{wch:12}];
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,'Guest List',ws);
-  XLSX.writeFile(wb,'JemmaAndRory_GuestList.xlsx');
+  const rows=[];
+  list.forEach(r=>{
+    const attendingLabel = r.attending==='yes'?'Yes':'No';
+    const partySize = parseInt(r.guests,10) || 1;
+    const mainName = r.name || '';
+
+    rows.push({
+      'Guest Name':       mainName,
+      'Guest Type':       'Main RSVP',
+      'Primary RSVP':     mainName,
+      'Attending':        attendingLabel,
+      'Party Size':       partySize,
+      'Main Course':      r.mainCourse||'',
+      'Steak Cook':       r.steakCook||'',
+      'Dietary':          r.dietary||'',
+      'Song Request':     r.song||'',
+      'Message':          r.message||'',
+      'RSVP Date':        r.date||''
+    });
+
+    (r.extraGuests||[]).forEach(g=>{
+      rows.push({
+        'Guest Name':       g.name||'',
+        'Guest Type':       g.childrensMenu ? 'Additional Guest (Child)' : 'Additional Guest',
+        'Primary RSVP':     mainName,
+        'Attending':        attendingLabel,
+        'Party Size':       partySize,
+        'Main Course':      g.mainCourse||'',
+        'Steak Cook':       g.steakCook||'',
+        'Dietary':          g.dietary||'',
+        'Song Request':     '',
+        'Message':          '',
+        'RSVP Date':        r.date||''
+      });
+    });
+  });
+
+  // Fallback for cases where SheetJS fails to load on hosted pages.
+  if(typeof XLSX==='undefined'){
+    exportToCSV(rows,'JemmaAndRory_GuestList.csv');
+    return;
+  }
+
+  try {
+    const ws=XLSX.utils.json_to_sheet(rows);
+    // Column widths
+    ws['!cols']=[{wch:22},{wch:10},{wch:11},{wch:50},{wch:18},{wch:14},{wch:22},{wch:24},{wch:40},{wch:12}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,'Guest List',ws);
+    const xlsxData=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const blob=new Blob([xlsxData],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    triggerDownload(blob,'JemmaAndRory_GuestList.xlsx');
+  } catch (e) {
+    exportToCSV(rows,'JemmaAndRory_GuestList.csv');
+  }
+}
+
+function exportToCSV(rows,filename){
+  const headers=Object.keys(rows[0]||{});
+  const escCSV=(v)=>{
+    const s=String(v??'');
+    return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;
+  };
+  const lines=[headers.join(',')];
+  rows.forEach(r=>{
+    lines.push(headers.map(h=>escCSV(r[h])).join(','));
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  triggerDownload(blob,filename);
+}
+
+function triggerDownload(blob,filename){
+  if(window.navigator && window.navigator.msSaveOrOpenBlob){
+    window.navigator.msSaveOrOpenBlob(blob,filename);
+    return;
+  }
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(()=>URL.revokeObjectURL(link.href),500);
 }
 
 /* ── Engagement photo slots ── */
@@ -936,6 +1057,7 @@ let photosUnlocked = false;
 function buildEngagementGrid(){
   const saved = JSON.parse(localStorage.getItem(PHOTO_STORAGE)||'[]');
   const grid = document.getElementById('engagementGrid');
+  if(!grid) return;
   grid.innerHTML='';
   const hasPhotos = saved.some(p => p);
   for(let i=0;i<NUM_SLOTS;i++){
@@ -963,14 +1085,20 @@ function buildEngagementGrid(){
 }
 
 function unlockPhotos(){
-  if(document.getElementById('photoPass').value === ADMIN_PASSWORD){
+  const passInput=document.getElementById('photoPass');
+  if(!passInput) return;
+  if(passInput.value === ADMIN_PASSWORD){
     photosUnlocked = true;
-    document.getElementById('photoLock').style.display='none';
-    document.getElementById('photoUploadControls').style.display='block';
-    document.getElementById('photoHint').style.display='block';
+    const photoLock=document.getElementById('photoLock');
+    const photoUploadControls=document.getElementById('photoUploadControls');
+    const photoHint=document.getElementById('photoHint');
+    if(photoLock) photoLock.style.display='none';
+    if(photoUploadControls) photoUploadControls.style.display='block';
+    if(photoHint) photoHint.style.display='block';
     buildEngagementGrid();
   } else {
-    document.getElementById('photoError').style.display='block';
+    const photoError=document.getElementById('photoError');
+    if(photoError) photoError.style.display='block';
   }
 }
 
@@ -1028,4 +1156,3 @@ buildEngagementGrid();
 </script>
 </body>
 </html>
-
