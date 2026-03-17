@@ -499,7 +499,7 @@
         <textarea id="message" placeholder="Share your warmest wishes, a fond memory, or some unsolicited advice..."></textarea>
       </div>
 
-      <button class="btn-submit" onclick="submitRSVP()">Send my RSVP</button>
+      <button class="btn-submit" id="submitRsvpBtn" onclick="submitRSVP()">Send my RSVP</button>
     </div>
 
     <div class="rsvp-success" id="rsvpSuccess">
@@ -640,7 +640,7 @@ const ADMIN_PASSWORD = 'lougherne2026';
 const STORAGE_KEY    = 'wedding_rsvps_jemmarory';
 // Optional: set this to your Google Apps Script / API URL for shared, persistent storage.
 const RSVP_API_URL  = 'https://script.google.com/macros/s/AKfycbzCbcGWwBfjYAaOT0WDZ8GtP_-ax-8mJDpINb6ZY4N9ooKf5KfB7vitTiUmF2PBSudGsw/exec';
-const RSVP_API_KEY  = '30081998';
+const RSVP_API_KEY  = '';
 
 function withApiKey(url){
   if(!RSVP_API_KEY) return url;
@@ -699,6 +699,7 @@ async function replaceAllRSVPs(arr){
 }
 
 let adminRSVPCache = [];
+let isSubmittingRSVP = false;
 
 /* ── RSVP Form ── */
 function toggleAttending(yes){ document.getElementById('attendingFields').style.display=yes?'block':'none'; }
@@ -771,12 +772,22 @@ function updateSteakOptionForGuest(guestNum){
 }
 
 async function submitRSVP(){
+  if (isSubmittingRSVP) return;
+
   const first=document.getElementById('first').value.trim();
   const last=document.getElementById('last').value.trim();
   const att=document.querySelector('input[name="attending"]:checked');
   const isYes=att&&att.value==='yes';
   if(!first||!last){ alert('Please enter your name.'); return; }
   if(!att){ alert('Please let us know if you can attend.'); return; }
+
+  const submitBtn = document.getElementById('submitRsvpBtn');
+  isSubmittingRSVP = true;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+  }
+
   const entry={
     name:first+' '+last,
     attending:att.value,
@@ -789,9 +800,18 @@ async function submitRSVP(){
     message: document.getElementById('message').value.trim(),
     date:    new Date().toLocaleDateString('en-GB')
   };
-  await saveRSVP(entry);
-  document.getElementById('rsvpForm').style.display='none';
-  document.getElementById('rsvpSuccess').style.display='block';
+  try {
+    await saveRSVP(entry);
+    document.getElementById('rsvpForm').style.display='none';
+    document.getElementById('rsvpSuccess').style.display='block';
+  } catch (_err) {
+    alert('We could not send your RSVP right now. Please try again.');
+    isSubmittingRSVP = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send my RSVP';
+    }
+  }
 }
 
 function downloadCalendarEvent(entry){
