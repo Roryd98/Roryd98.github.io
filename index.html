@@ -138,7 +138,7 @@
   .timeline-desc { font-size:0.84rem; color:var(--mid-text); line-height:1.75; }
 
   /* RSVP */
-  .rsvp-bg { background:var(--cream); padding:6rem 2rem; }
+  .rsvp-bg { background:#f0f0f0; padding:6rem 2rem; }
   .rsvp-inner { max-width:700px; margin:0 auto; }
   .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; margin-bottom:1.1rem; }
   @media(max-width:560px){ .form-grid{grid-template-columns:1fr;} }
@@ -161,6 +161,23 @@
   .rsvp-success { display:none; text-align:center; padding:2.5rem; background:var(--white); border:1px solid var(--blush); border-radius:2px; }
   .rsvp-success h3 { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:2rem; color:var(--rose-accent); margin-bottom:0.5rem; }
   .rsvp-success p { font-size:0.86rem; color:var(--mid-text); line-height:1.8; }
+
+  /* REGISTRY */
+  .registry-bg { background:var(--blush-faint); padding:6rem 2rem; border-top:1px solid var(--blush); border-bottom:1px solid var(--blush); }
+  .registry-inner { max-width:760px; margin:0 auto; }
+  .registry-poem {
+    background:rgba(255,255,255,0.82);
+    border:1px solid var(--blush);
+    border-radius:2px;
+    padding:2rem;
+    text-align:center;
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:1.2rem;
+    line-height:1.85;
+    color:var(--rose-accent);
+  }
+  @media(max-width:560px){ .registry-poem{padding:1.4rem;font-size:1.08rem;line-height:1.75;} }
 
   /* ADMIN */
   .admin-section { background:var(--ivory); padding:6rem 2rem; }
@@ -225,10 +242,9 @@
 <nav>
   <a href="#venue">Venue</a>
   <a href="#menu">Menu</a>
-  <a href="#order">Order of Service</a>
+  <a href="#order">Timeline</a>
   <a href="#rsvp">RSVP</a>
-  <a href="#photos">Our Photos</a>
-  <a href="#guestlist">Guest List</a>
+  <a href="#registry">Registry</a>
 </nav>
 
 <!-- HERO -->
@@ -258,7 +274,7 @@
     <div class="venue-grid">
       <div>
         <img class="venue-photo"
-          src="st-johns-moira.jfif"
+          src="st-johns-moira-side.jpg"
           alt="St John's Church, Moira"
           onerror="this.style.background='var(--blush-pale)'">
         <div class="map-box">
@@ -489,6 +505,31 @@
     <div class="rsvp-success" id="rsvpSuccess">
       <h3>Thank you so much!</h3>
       <p>We've received your RSVP and we're so excited to celebrate with you.<br>We'll be in touch with further details closer to the big day.</p>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRY -->
+<div class="registry-bg" id="registry">
+  <div class="registry-inner">
+    <span class="section-label">With Love</span>
+    <h2 class="section-title">Registry</h2>
+    <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
+    <div class="registry-poem">
+      We&apos;ve built a home and filled it well,<br>
+      With all the things we need,<br>
+      So if you&apos;re thinking of a gift,<br>
+      We&apos;d like to share a little deed.<br><br>
+
+      We&apos;re dreaming of a honeymoon<br>
+      To celebrate our start,<br>
+      So if you&apos;d like to help us go<br>
+      It would mean the world to our hearts.<br><br>
+
+      Your presence at our wedding<br>
+      Is truly gift enough,<br>
+      But a little towards our honeymoon<br>
+      Would help us start with love.
     </div>
   </div>
 </div>
@@ -987,3 +1028,4 @@ buildEngagementGrid();
 </script>
 </body>
 </html>
+
