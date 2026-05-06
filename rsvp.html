@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSVP Directory | Jemma &amp; Rory</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush:        #A85A68;
+    --blush-mid:    #C07080;
+    --blush-deep:   #7A3A48;
+    --blush-pale:   #F4EFEA;
+    --blush-faint:  #FAF9F7;
+    --rose-accent:  #9B8B6B;
+    --white:        #ffffff;
+    --ivory:        #FFFCF9;
+    --cream:        #F8F5F1;
+    --dark-text:    #2D2D2D;
+    --mid-text:     #6B6B6B;
+    --light-text:   #B0A8A0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Jost', sans-serif;
+    background: radial-gradient(circle at top right, #fff, var(--ivory) 50%, #f4efea);
+    color: var(--dark-text);
+    min-height: 100vh;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(168, 90, 104, 0.25);
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--mid-text);
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  nav a.active {
+    color: var(--blush-deep);
+  }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 2.2rem 1rem 3.2rem;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 1.8rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--blush-deep);
+    margin-bottom: 0.65rem;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    font-weight: 300;
+    color: var(--rose-accent);
+    line-height: 1.08;
+  }
+  .hero p {
+    margin: 1rem auto 0;
+    max-width: 650px;
+    color: var(--mid-text);
+    line-height: 1.7;
+    font-size: 0.94rem;
+  }
+
+  .card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(168, 90, 104, 0.25);
+    border-radius: 6px;
+    padding: 1.25rem;
+    box-shadow: 0 12px 30px rgba(122, 58, 72, 0.06);
+    margin-bottom: 1rem;
+  }
+
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--blush-deep);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .search-wrap {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.65rem;
+    align-items: center;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    border: 1px solid rgba(168, 90, 104, 0.35);
+    border-radius: 2px;
+    background: var(--white);
+    color: var(--dark-text);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.72rem 0.85rem;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--blush-mid);
+  }
+
+  .btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    padding: 0.8rem 1.1rem;
+    font-family: 'Jost', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.64rem;
+    transition: background 0.2s, opacity 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--blush-mid);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--blush-deep); }
+
+  .btn-soft {
+    background: var(--blush-pale);
+    color: var(--blush-deep);
+    border: 1px solid rgba(168, 90, 104, 0.35);
+  }
+
+  .results {
+    margin-top: 0.8rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .invite-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    border: 1px solid rgba(168, 90, 104, 0.2);
+    background: #fff;
+    border-radius: 4px;
+    padding: 0.7rem 0.8rem;
+  }
+
+  .invite-result-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .invite-name {
+    font-size: 0.92rem;
+    color: var(--dark-text);
+  }
+
+  .invite-meta {
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    color: var(--mid-text);
+    text-transform: uppercase;
+  }
+
+  .invite-pill {
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blush-deep);
+    border: 1px solid rgba(168, 90, 104, 0.35);
+    padding: 0.3rem 0.48rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .chosen-invite {
+    display: none;
+    margin-top: 0.65rem;
+    padding: 0.85rem;
+    border: 1px dashed var(--blush);
+    border-radius: 4px;
+    background: var(--blush-faint);
+  }
+
+  .chosen-line {
+    font-size: 0.88rem;
+    color: var(--mid-text);
+    line-height: 1.6;
+  }
+
+  .form-area { display: none; }
+
+  .radio-group {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    margin-top: 0.55rem;
+  }
+
+  .radio {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    color: var(--mid-text);
+    cursor: pointer;
+  }
+  .radio input[type="radio"] { width: auto; accent-color: var(--blush-deep); }
+
+  .attending-panel {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(168, 90, 104, 0.2);
+    border-radius: 4px;
+    background: #fff;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .guest-rows {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 0.9rem;
+  }
+
+  .guest-row {
+    border: 1px solid rgba(168, 90, 104, 0.2);
+    border-radius: 4px;
+    padding: 0.8rem;
+    background: var(--blush-faint);
+  }
+
+  .guest-row-title {
+    font-size: 0.63rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--blush-deep);
+  }
+
+  .guest-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .remove-guest-btn {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.22rem 0.55rem;
+    background: none;
+    border: 1px solid rgba(168, 90, 104, 0.3);
+    color: var(--mid-text);
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'Jost', sans-serif;
+    text-transform: uppercase;
+  }
+  .remove-guest-btn:hover { background: var(--blush-pale); color: var(--blush-deep); }
+
+  label {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mid-text);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .hint {
+    margin-top: 0.7rem;
+    font-size: 0.8rem;
+    color: var(--light-text);
+    line-height: 1.6;
+  }
+
+  .message {
+    margin-top: 0.7rem;
+    font-size: 0.83rem;
+    color: #944f5e;
+    display: none;
+  }
+
+  .success {
+    display: none;
+    text-align: center;
+    margin-top: 1rem;
+    background: #fff;
+    border: 1px solid rgba(168, 90, 104, 0.3);
+    border-radius: 4px;
+    padding: 1.7rem 1rem;
+  }
+
+  .success h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 2rem;
+    color: var(--rose-accent);
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+  }
+
+  .success p {
+    color: var(--mid-text);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 720px) {
+    .search-wrap { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .invite-result { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="venue.html">Venue</a>
+    <a href="menu.html">Menu</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="rsvp.html" class="active">RSVP</a>
+    <a href="registry.html">Registry</a>
+  </nav>
+
+  <main class="page">
+    <section class="hero">
+      <span class="hero-eyebrow">Saturday · 19 September 2026</span>
+      <h1>RSVP Directory</h1>
+      <p>Search your name to open your invite, then tick your options and send your RSVP. Please respond by 1st August 2026.</p>
+    </section>
+
+    <section class="card">
+      <span class="section-label">Step 1</span>
+      <div class="search-wrap">
+        <input type="text" id="inviteSearch" placeholder="Type your name as it appears on your invite" autocomplete="off">
+        <button class="btn btn-soft" id="clearSearchBtn" type="button">Clear Search</button>
+      </div>
+      <div class="results" id="searchResults"></div>
+      <p class="hint" id="searchHint">Type your name exactly as it appears on your invite (not case sensitive).</p>
+      <p class="message" id="searchMessage">No exact match found. Please enter your full name exactly, or contact Jemma or Rory.</p>
+      <p class="hint" id="inviteDataHint" style="display:none;">Invite directory is empty. Add an Excel file named invites.xlsx or invites.csv in this site root.</p>
+
+      <div class="chosen-invite" id="chosenInvite"></div>
+    </section>
+
+    <section class="card form-area" id="formArea">
+      <span class="section-label">Step 2</span>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-style:italic;font-weight:300;color:var(--rose-accent);margin-bottom:0.6rem;">Complete Your RSVP</h2>
+
+      <div style="margin-bottom:1rem;">
+        <label>Will you be attending?</label>
+        <div class="radio-group">
+          <label class="radio"><input type="radio" name="attending" value="yes"> Yes, attending</label>
+          <label class="radio"><input type="radio" name="attending" value="no"> Unable to attend</label>
+        </div>
+      </div>
+
+      <div class="attending-panel" id="attendingPanel">
+        <div class="guest-rows" id="guestRows"></div>
+        <div id="addGuestWrap" style="margin-top:0.65rem;display:none;">
+          <button class="btn btn-soft" id="addGuestBtn" type="button">+ Add Guest</button>
+        </div>
+        <div style="margin-top:0.95rem;">
+          <label for="childGuestCount">Child Guests In Your Party</label>
+          <select id="childGuestCount"></select>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem;">
+        <label for="message">Message For The Couple</label>
+        <textarea id="message" rows="4" placeholder="Leave your wishes here..."></textarea>
+      </div>
+
+      <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-top:1rem;">
+        <button class="btn btn-primary" id="submitBtn" type="button">Send RSVP</button>
+        <button class="btn btn-soft" id="changeInviteBtn" type="button">Choose Different Invite</button>
+      </div>
+    </section>
+
+    <section class="success" id="successBox">
+      <h3>Thank You!</h3>
+      <p>Your RSVP has been saved. If plans change, return to this page, search your name, and submit an updated RSVP.</p>
+    </section>
+  </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const STORAGE_KEY = 'wedding_rsvps_jemmarory';
+const INVITES_STORAGE_KEY = 'wedding_invites_jemmarory';
+const RSVP_API_URL = 'https://script.google.com/macros/s/AKfycbzCbcGWwBfjYAaOT0WDZ8GtP_-ax-8mJDpINb6ZY4N9ooKf5KfB7vitTiUmF2PBSudGsw/exec';
+const RSVP_API_KEY = '';
+const INVITE_FILE_CANDIDATES = ['invites-template.csv', 'invites.xlsx', 'invites.csv'];
+
+let INVITES = [];
+
+let selectedInvite = null;
+let activeGuestCount = 1;
+let isSubmitting = false;
+
+function withApiKey(url) {
+  if (!RSVP_API_KEY) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}key=${encodeURIComponent(RSVP_API_KEY)}`;
+}
+
+function getLocalRSVPs() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveLocalRSVPs(arr) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+
+async function getRSVPs() {
+  if (!RSVP_API_URL) return getLocalRSVPs();
+  try {
+    const res = await fetch(withApiKey(RSVP_API_URL), { method: 'GET', cache: 'no-store' });
+    if (!res.ok) throw new Error('Fetch failed');
+    const data = await res.json();
+    return Array.isArray(data) ? data : (Array.isArray(data.rows) ? data.rows : (Array.isArray(data.data) ? data.data : []));
+  } catch {
+    return getLocalRSVPs();
+  }
+}
+
+async function saveRSVP(data) {
+  if (RSVP_API_URL) {
+    try {
+      await fetch(withApiKey(RSVP_API_URL), {
+        method: 'POST',
+        body: JSON.stringify({ action: 'create', entry: data })
+      });
+    } catch {}
+  }
+  const local = getLocalRSVPs();
+  local.push(data);
+  saveLocalRSVPs(local);
+}
+
+async function replaceAllRSVPs(arr) {
+  if (RSVP_API_URL) {
+    try {
+      await fetch(withApiKey(RSVP_API_URL), {
+        method: 'POST',
+        body: JSON.stringify({ action: 'replaceAll', rows: arr })
+      });
+    } catch {}
+  }
+  saveLocalRSVPs(arr);
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function normalize(str) {
+  return (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+}
+
+function isFullName(value) {
+  const name = String(value || '').trim();
+  if (name.length < 5) return false;
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return false;
+  return parts.every((p) => p.length >= 2);
+}
+
+function getStoredInvites() {
+  try { return JSON.parse(localStorage.getItem(INVITES_STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveStoredInvites(invites) {
+  localStorage.setItem(INVITES_STORAGE_KEY, JSON.stringify(invites));
+}
+
+function isChildLabel(value) {
+  const v = String(value || '').toLowerCase().trim();
+  return v === 'child' || v === 'kid' || v === 'kids' || v === 'children' || v === 'child guest';
+}
+
+function parseGuestToken(token) {
+  const raw = String(token || '').trim();
+  if (!raw) return null;
+  const childPattern = /\((child|kid|kids|children)\)|\[(child|kid|kids|children)\]|\s-\s(child|kid|kids|children)$/i;
+  const isChild = childPattern.test(raw);
+  const name = raw
+    .replace(/\((child|kid|kids|children)\)/ig, '')
+    .replace(/\[(child|kid|kids|children)\]/ig, '')
+    .replace(/\s-\s(child|kid|kids|children)$/ig, '')
+    .trim();
+  if (!name) return null;
+  return { name, childrensMenu: isChild };
+}
+
+function parseInviteRow(row, idx) {
+  // New column format: Invite number, Adult 1-4, Child 1-5, Invite type, Max party
+  const adultCols = ['Adult 1', 'Adult 2', 'Adult 3', 'Adult 4'];
+  const childCols = ['Child 1', 'Child 2', 'Child 3', 'Child 4', 'Child 5'];
+
+  const adults = adultCols
+    .map((col) => String(row[col] || '').trim())
+    .filter(Boolean)
+    .map((name) => ({ name, childrensMenu: false }));
+
+  const children = childCols
+    .map((col) => String(row[col] || '').trim())
+    .filter(Boolean)
+    .map((name) => ({ name, childrensMenu: true }));
+
+  let guestProfiles = [...adults, ...children];
+
+  // Fall back to legacy guestNames column format
+  if (!guestProfiles.length) {
+    const groupRaw = String(row.guestNames || row.names || '').trim();
+    const parsedGroup = groupRaw
+      ? groupRaw.split(/\||,|;/).map((n) => parseGuestToken(n)).filter(Boolean)
+      : [];
+    const fallbackLead = String(row.leadName || row.name || row.guestName || row.guest || '').trim();
+    guestProfiles = parsedGroup.length
+      ? parsedGroup
+      : (fallbackLead ? [{ name: fallbackLead, childrensMenu: false }] : []);
+  }
+
+  if (!guestProfiles.length) return null;
+
+  const guestNames = guestProfiles.map((g) => g.name);
+  const type = String(row['Invite type'] || row.inviteType || row.type || row.invite || 'Guest').trim() || 'Guest';
+  const parsedParty = parseInt(row['Max party'] || row.maxParty || row.partySize || row.maxGuests || row.guests || '1', 10);
+  const maxParty = Number.isFinite(parsedParty) && parsedParty > 0 ? parsedParty : guestProfiles.length;
+  const idBase = String(row['Invite number'] || row.inviteId || row.id || '').trim();
+  const displayName = guestNames.join(' & ');
+
+  return {
+    id: idBase || `invite-${idx + 1}`,
+    leadName: guestNames[0],
+    guestNames,
+    guestProfiles,
+    displayName,
+    inviteType: type,
+    maxParty
+  };
+}
+
+function parseInviteRows(rows) {
+  const parsed = rows
+    .map((row, idx) => parseInviteRow(row, idx))
+    .filter(Boolean);
+
+  const deduped = [];
+  const seen = new Set();
+  parsed.forEach((item) => {
+    const key = `${normalize(item.leadName)}|${item.id}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduped.push(item);
+    }
+  });
+  return deduped;
+}
+
+function updateInviteDataHint() {
+  const hint = document.getElementById('inviteDataHint');
+  if (!hint) return;
+  hint.style.display = INVITES.length ? 'none' : 'block';
+}
+
+async function loadInvitesFromWorkbookUrl() {
+  if (typeof XLSX === 'undefined') return [];
+  for (const fileName of INVITE_FILE_CANDIDATES) {
+    try {
+      const res = await fetch(fileName, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const buffer = await res.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      const firstSheet = workbook.SheetNames[0];
+      if (!firstSheet) continue;
+      const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: '' });
+      const parsed = parseInviteRows(rows);
+      if (parsed.length) return parsed;
+    } catch {
+      // Try next candidate file.
+    }
+  }
+  return [];
+}
+
+async function loadInvites() {
+  localStorage.removeItem(INVITES_STORAGE_KEY);
+  const fromWorkbook = await loadInvitesFromWorkbookUrl();
+  INVITES = fromWorkbook;
+  updateInviteDataHint();
+}
+
+function renderSearchResults(matches) {
+  const box = document.getElementById('searchResults');
+  box.innerHTML = '';
+  matches.forEach((invite) => {
+    const row = document.createElement('div');
+    row.className = 'invite-result';
+    row.innerHTML = `
+      <div class="invite-result-main">
+        <span class="invite-name">${esc(invite.displayName || invite.leadName)}</span>
+        <span class="invite-meta">${esc(invite.inviteType)} · Up to ${invite.maxParty} guest${invite.maxParty > 1 ? 's' : ''}</span>
+      </div>
+      <button class="btn btn-primary" type="button">Select Invite</button>
+    `;
+    row.querySelector('button').addEventListener('click', () => chooseInvite(invite));
+    box.appendChild(row);
+  });
+}
+
+function searchInvites() {
+  const q = normalize(document.getElementById('inviteSearch').value);
+  const hint = document.getElementById('searchHint');
+  const noMsg = document.getElementById('searchMessage');
+
+  document.getElementById('searchResults').innerHTML = '';
+  noMsg.style.display = 'none';
+
+  if (!q) {
+    hint.style.display = 'block';
+    return;
+  }
+
+  hint.style.display = 'none';
+
+  if (q.length < 2) {
+    noMsg.style.display = 'block';
+    return;
+  }
+
+  const matches = INVITES.filter((invite) => {
+    const names = Array.isArray(invite.guestNames) && invite.guestNames.length
+      ? invite.guestNames
+      : [invite.displayName || invite.leadName || ''];
+    return names.some((name) => normalize(name) === q);
+  });
+  if (!matches.length) {
+    noMsg.style.display = 'block';
+    return;
+  }
+
+  renderSearchResults(matches.slice(0, 10));
+}
+
+function chooseInvite(invite) {
+  selectedInvite = invite;
+
+  const chosen = document.getElementById('chosenInvite');
+  chosen.style.display = 'block';
+  chosen.innerHTML = `
+    <p class="chosen-line"><strong>Invite selected:</strong> ${esc(invite.displayName || invite.leadName)}</p>
+    <p class="chosen-line"><strong>Type:</strong> ${esc(invite.inviteType)}</p>
+    <p class="chosen-line"><strong>Maximum party size:</strong> ${invite.maxParty}</p>
+  `;
+
+  document.getElementById('formArea').style.display = 'block';
+  document.getElementById('successBox').style.display = 'none';
+
+  const radios = document.querySelectorAll('input[name="attending"]');
+  radios.forEach((r) => { r.checked = false; });
+
+  const childCount = document.getElementById('childGuestCount');
+  if (childCount) {
+    childCount.innerHTML = '';
+    for (let i = 0; i <= invite.maxParty; i += 1) {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = String(i);
+      childCount.appendChild(opt);
+    }
+    childCount.value = '0';
+  }
+
+  document.getElementById('attendingPanel').style.display = 'none';
+  activeGuestCount = Math.max(1, selectedInvite.guestProfiles ? selectedInvite.guestProfiles.length : 1);
+  buildGuestRows(activeGuestCount);
+  hydrateExistingResponse();
+}
+
+function getCurrentGuestData() {
+  const names = [...document.querySelectorAll('.guest-name')];
+  const mains = [...document.querySelectorAll('.guest-main')];
+  const steaks = [...document.querySelectorAll('.guest-steak')];
+  const dietary = [...document.querySelectorAll('.guest-dietary')];
+  return names.map((_, i) => ({
+    name: names[i] ? names[i].value.trim() : '',
+    mainCourse: mains[i] ? mains[i].value.trim() : '',
+    steakCook: steaks[i] ? steaks[i].value.trim() : '',
+    dietary: dietary[i] ? dietary[i].value.trim() : ''
+  }));
+}
+
+function refreshAddGuestBtn() {
+  const wrap = document.getElementById('addGuestWrap');
+  if (!wrap || !selectedInvite) return;
+  const hardCap = (selectedInvite.maxParty || 1) + 2;
+  wrap.style.display = activeGuestCount < hardCap ? 'block' : 'none';
+}
+
+function buildGuestRows(count, existing) {
+  const rows = document.getElementById('guestRows');
+  rows.innerHTML = '';
+
+  for (let i = 0; i < count; i += 1) {
+    const person = existing && existing[i] ? existing[i] : null;
+    const presetProfiles = selectedInvite && Array.isArray(selectedInvite.guestProfiles) ? selectedInvite.guestProfiles : [];
+    const presetNames = presetProfiles.map((p) => p.name || '').filter(Boolean);
+    const presetIsChild = presetProfiles[i] ? !!presetProfiles[i].childrensMenu : false;
+    const defaultsName = person && person.name ? person.name : (presetNames[i] || '');
+    const defaultsCourse = person && person.mainCourse ? person.mainCourse : '';
+    const defaultsSteak = person && person.steakCook ? person.steakCook : '';
+    const defaultsDietary = person && person.dietary ? person.dietary : '';
+    const defaultsChild = person ? !!person.childrensMenu : presetIsChild;
+
+    const card = document.createElement('div');
+    card.className = 'guest-row';
+    card.innerHTML = `
+      <div class="guest-row-header">
+        <div class="guest-row-title">${i === 0 ? 'Primary Guest' : `Guest ${i + 1}`}</div>
+        ${i > 0 ? '<button class="remove-guest-btn" type="button">Remove</button>' : ''}
+      </div>
+      <div class="grid" style="margin-bottom:0;">
+        <div>
+          <label>Name</label>
+          <input type="text" class="guest-name" value="${esc(defaultsName)}" placeholder="Guest full name">
+        </div>
+        <div>
+          <label>Main Course</label>
+          <select class="guest-main">
+            <option value="">Please select</option>
+            <option${defaultsCourse === 'Fillet Steak' ? ' selected' : ''}>Fillet Steak</option>
+            <option${defaultsCourse === 'Chicken' ? ' selected' : ''}>Chicken</option>
+            <option${defaultsCourse === "Children's Menu" ? ' selected' : ''}>Children's Menu</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:0.75rem;margin-bottom:0;">
+        <div class="guest-steak-wrap" style="display:${defaultsCourse === 'Fillet Steak' ? 'block' : 'none'};">
+          <label>Steak Cook (if selected)</label>
+          <select class="guest-steak">
+            <option value="">Please select</option>
+            <option${defaultsSteak === 'Pink' ? ' selected' : ''}>Pink</option>
+            <option${defaultsSteak === 'Well Done' ? ' selected' : ''}>Well Done</option>
+          </select>
+        </div>
+        <div>
+          <label>Dietary Requirements</label>
+          <input type="text" class="guest-dietary" value="${esc(defaultsDietary)}" placeholder="Optional dietary notes">
+        </div>
+      </div>
+    `;
+
+    const mainSelect = card.querySelector('.guest-main');
+    const steakWrap = card.querySelector('.guest-steak-wrap');
+    const steakSelect = card.querySelector('.guest-steak');
+    if (mainSelect && steakWrap && steakSelect) {
+      mainSelect.addEventListener('change', () => {
+        if (mainSelect.value === 'Fillet Steak') {
+          steakWrap.style.display = 'block';
+        } else {
+          steakWrap.style.display = 'none';
+          steakSelect.value = '';
+        }
+      });
+    }
+
+    if (i > 0) {
+      card.querySelector('.remove-guest-btn').addEventListener('click', () => {
+        const currentData = getCurrentGuestData();
+        currentData.splice(i, 1);
+        activeGuestCount = Math.max(1, activeGuestCount - 1);
+        buildGuestRows(activeGuestCount, currentData);
+      });
+    }
+
+    rows.appendChild(card);
+  }
+  refreshAddGuestBtn();
+}
+
+function getAttendeeRows() {
+  const names = [...document.querySelectorAll('.guest-name')];
+  const mains = [...document.querySelectorAll('.guest-main')];
+  const steaks = [...document.querySelectorAll('.guest-steak')];
+  const dietary = [...document.querySelectorAll('.guest-dietary')];
+
+  const rows = [];
+  for (let i = 0; i < names.length; i += 1) {
+    const mainChoice = mains[i].value.trim();
+    rows.push({
+      name: names[i].value.trim(),
+      mainCourse: mainChoice,
+      steakCook: mainChoice === 'Fillet Steak' ? steaks[i].value.trim() : '',
+      dietary: dietary[i].value.trim()
+    });
+  }
+  return rows;
+}
+
+async function hydrateExistingResponse() {
+  if (!selectedInvite) return;
+
+  const list = await getRSVPs();
+  const selectedNames = Array.isArray(selectedInvite.guestNames) ? selectedInvite.guestNames : [selectedInvite.leadName];
+  const existing = list.find((r) => {
+    if (r.inviteId && r.inviteId === selectedInvite.id) return true;
+    const mainNameMatch = selectedNames.some((n) => normalize(r.name) === normalize(n));
+    if (mainNameMatch) return true;
+    const extra = Array.isArray(r.extraGuests) ? r.extraGuests : [];
+    return extra.some((g) => selectedNames.some((n) => normalize(g.name) === normalize(n)));
+  });
+  if (!existing) return;
+
+  const radioYes = document.querySelector('input[name="attending"][value="yes"]');
+  const radioNo = document.querySelector('input[name="attending"][value="no"]');
+
+  if (existing.attending === 'yes') {
+    radioYes.checked = true;
+    document.getElementById('attendingPanel').style.display = 'block';
+    const partySize = Math.max(1, parseInt(existing.guests, 10) || selectedInvite.maxParty || 1);
+    const maxParty = Math.max(1, selectedInvite.maxParty || 1);
+
+    const attendees = [
+      {
+        name: existing.name || selectedInvite.leadName,
+        mainCourse: existing.mainCourse || '',
+        steakCook: existing.steakCook || '',
+        dietary: existing.dietary || ''
+      }
+    ].concat((existing.extraGuests || []).map((g) => ({
+      name: g.name || '',
+      mainCourse: g.mainCourse || '',
+      steakCook: g.steakCook || '',
+      dietary: g.dietary || ''
+    })));
+
+    activeGuestCount = attendees.length || 1;
+    buildGuestRows(activeGuestCount, attendees);
+    const childCount = document.getElementById('childGuestCount');
+    if (childCount) {
+      const existingChildCount = Number.isFinite(parseInt(existing.childGuestCount, 10))
+        ? parseInt(existing.childGuestCount, 10)
+        : (existing.extraGuests || []).filter((g) => !!g.childrensMenu).length;
+      childCount.value = String(Math.max(0, Math.min(maxParty, existingChildCount)));
+    }
+  } else {
+    radioNo.checked = true;
+    document.getElementById('attendingPanel').style.display = 'none';
+  }
+
+  document.getElementById('message').value = existing.message || '';
+}
+
+async function submitRSVP() {
+  if (isSubmitting) return;
+  if (!selectedInvite) {
+    alert('Please select your invite first.');
+    return;
+  }
+
+  const attendingInput = document.querySelector('input[name="attending"]:checked');
+  if (!attendingInput) {
+    alert('Please choose whether you are attending.');
+    return;
+  }
+
+  const attending = attendingInput.value;
+  const partySize = attending === 'yes' ? Math.max(1, activeGuestCount) : 0;
+  const attendees = attending === 'yes' ? getAttendeeRows() : [];
+
+  if (attending === 'yes') {
+    for (let i = 0; i < partySize; i += 1) {
+      const row = attendees[i];
+      if (!row || !row.name) {
+        alert('Please enter a name for each attending guest.');
+        return;
+      }
+      if (!isFullName(row.name)) {
+        alert('Please enter each guest using full first and last name.');
+        return;
+      }
+    }
+  }
+
+  const childGuestCount = attending === 'yes'
+    ? Math.max(0, Math.min(partySize, parseInt((document.getElementById('childGuestCount') || { value: '0' }).value, 10) || 0))
+    : 0;
+
+  const primary = attendees[0] || {};
+  const extraGuests = attendees.slice(1).map((g, idx, arr) => ({
+    name: g.name,
+    mainCourse: g.mainCourse,
+    steakCook: g.steakCook,
+    dietary: g.dietary,
+    childrensMenu: attending === 'yes' ? idx >= (arr.length - childGuestCount) : false
+  }));
+
+  const entry = {
+    inviteId: selectedInvite.id,
+    inviteType: selectedInvite.inviteType,
+    maxParty: selectedInvite.maxParty,
+    name: selectedInvite.displayName || selectedInvite.leadName,
+    attending,
+    guests: String(partySize),
+    mainCourse: primary.mainCourse || '',
+    steakCook: primary.steakCook || '',
+    dietary: primary.dietary || '',
+    childGuestCount: String(childGuestCount),
+    primaryChildrensMenu: false,
+    extraGuests,
+    song: '',
+    message: document.getElementById('message').value.trim(),
+    date: new Date().toLocaleDateString('en-GB')
+  };
+
+  isSubmitting = true;
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+
+  try {
+    const existingList = await getRSVPs();
+    const existingIndex = existingList.findIndex((r) => (r.inviteId && r.inviteId === selectedInvite.id) || normalize(r.name) === normalize(selectedInvite.leadName));
+
+    if (existingIndex >= 0) {
+      existingList[existingIndex] = { ...existingList[existingIndex], ...entry };
+      await replaceAllRSVPs(existingList);
+    } else {
+      await saveRSVP(entry);
+    }
+
+    document.getElementById('successBox').style.display = 'block';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  } catch {
+    alert('We could not send your RSVP right now. Please try again.');
+  } finally {
+    isSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send RSVP';
+  }
+}
+
+function attachEvents() {
+  document.getElementById('inviteSearch').addEventListener('input', searchInvites);
+  document.getElementById('clearSearchBtn').addEventListener('click', () => {
+    document.getElementById('inviteSearch').value = '';
+    document.getElementById('searchResults').innerHTML = '';
+    document.getElementById('searchHint').style.display = 'block';
+    document.getElementById('searchMessage').style.display = 'none';
+  });
+
+  document.querySelectorAll('input[name="attending"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const show = radio.value === 'yes' && radio.checked;
+      document.getElementById('attendingPanel').style.display = show ? 'block' : 'none';
+      if (show) refreshAddGuestBtn();
+    });
+  });
+
+  document.getElementById('submitBtn').addEventListener('click', submitRSVP);
+  document.getElementById('changeInviteBtn').addEventListener('click', () => {
+    selectedInvite = null;
+    document.getElementById('chosenInvite').style.display = 'none';
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('successBox').style.display = 'none';
+  });
+
+  const addGuestBtn = document.getElementById('addGuestBtn');
+  if (addGuestBtn) {
+    addGuestBtn.addEventListener('click', () => {
+      const hardCap = (selectedInvite.maxParty || 1) + 2;
+      if (!selectedInvite || activeGuestCount >= hardCap) return;
+      const currentData = getCurrentGuestData();
+      activeGuestCount = Math.min(activeGuestCount + 1, hardCap);
+      buildGuestRows(activeGuestCount, currentData);
+    });
+  }
+}
+
+(async function init() {
+  await loadInvites();
+  attachEvents();
+})();
+</script>
+</body>
+</html>

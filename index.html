@@ -234,20 +234,165 @@
   footer { background:var(--blush-pale); border-top:1px solid var(--blush); color:var(--mid-text); text-align:center; padding:3rem 2rem; }
   footer .footer-names { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:2.1rem; color:var(--rose-accent); margin-bottom:0.5rem; }
   footer p { font-size:0.73rem; letter-spacing:0.12em; }
+
+  /* ═══════════════════════════════
+     ENVELOPE INTRO OVERLAY
+  ═══════════════════════════════ */
+  #env-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: radial-gradient(ellipse at center, #ffffff 0%, var(--ivory) 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2.8rem;
+    transition: opacity 0.85s ease;
+  }
+  #env-overlay.env-done { opacity: 0; pointer-events: none; }
+
+  /* Stage */
+  #env-stage {
+    position: relative;
+    width: 320px; height: 208px;
+    perspective: 1400px;
+    filter: drop-shadow(0 10px 40px rgba(168, 90, 104, 0.22));
+  }
+
+  /* ── Invitation card ── */
+  #env-card {
+    position: absolute; left: 50%; bottom: 0;
+    width: 268px;
+    transform: translateX(-50%);
+    background: var(--white);
+    border: 1px solid rgba(168, 90, 104, 0.28);
+    padding: 1.5rem 1.8rem 1.6rem;
+    text-align: center;
+    z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+    opacity: 0;
+    animation: envCardRise 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1.6s both;
+  }
+  @keyframes envCardRise {
+    0%   { bottom: 0;     opacity: 0; }
+    12%  { opacity: 1; }
+    100% { bottom: 190px; opacity: 1; }
+  }
+  .env-eyebrow {
+    font-size: 0.53rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--light-text);
+  }
+  .env-names {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+    font-size: 2rem; line-height: 1; color: var(--rose-accent);
+  }
+  .env-amp { color: rgba(168, 90, 104, 0.55); }
+  .env-card-rule { width: 34px; height: 1px; background: var(--blush); }
+  .env-card-date {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid-text);
+  }
+
+  /* ── Envelope body (front face — covers card inside) ── */
+  #env-body {
+    position: absolute; inset: 0;
+    background: var(--blush-pale);
+    border: 1px solid rgba(168, 90, 104, 0.38);
+    border-radius: 2px;
+    z-index: 3;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* Bottom V fold */
+  #env-body::before {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 0; height: 0;
+    border-left: 160px solid transparent;
+    border-right: 160px solid transparent;
+    border-bottom: 104px solid rgba(168, 90, 104, 0.13);
+  }
+  /* Top-left fold */
+  #env-body::after {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 0; height: 0;
+    border-top: 110px solid rgba(168, 90, 104, 0.08);
+    border-right: 160px solid transparent;
+  }
+  /* Top-right fold */
+  .env-fold-right {
+    position: absolute; top: 0; right: 0;
+    width: 0; height: 0;
+    border-top: 110px solid rgba(168, 90, 104, 0.08);
+    border-left: 160px solid transparent;
+  }
+  /* Wax seal */
+  .env-seal {
+    position: relative; z-index: 1;
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--blush-mid); color: var(--white);
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.82rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 10px rgba(168, 90, 104, 0.3);
+    margin-top: 22px;
+  }
+
+  /* ── Flap (top triangle, rotates open) ── */
+  #env-flap-wrap {
+    position: absolute; top: 0; left: 0; right: 0; height: 116px;
+    z-index: 4;
+    transform-style: preserve-3d; transform-origin: top center;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    animation: envFlapOpen 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;
+  }
+  #env-flap {
+    width: 100%; height: 100%;
+    background: linear-gradient(155deg, #fefcf9 0%, var(--blush-pale) 100%);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  @keyframes envFlapOpen {
+    0%   { transform: rotateX(0deg); }
+    100% { transform: rotateX(-180deg); }
+  }
+
+  /* ── Skip button ── */
+  #env-skip {
+    font-family: 'Jost', sans-serif; font-size: 0.57rem;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--light-text); background: none; border: none; cursor: pointer;
+    padding: 0.5rem 1.2rem; transition: color 0.2s;
+    animation: fadeIn 1.2s ease 0.5s both;
+  }
+  #env-skip:hover { color: var(--mid-text); }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ═══ ENVELOPE INTRO ═══ -->
+<div id="env-overlay" aria-hidden="true">
+  <div id="env-stage">
+    <!-- Invitation card (rises from inside) -->
+    <div id="env-card">
+      <span class="env-eyebrow">you are cordially invited</span>
+      <span class="env-names">Jemma <span class="env-amp">&amp;</span> Rory</span>
+      <div class="env-card-rule"></div>
+      <span class="env-card-date">19 · September · 2026</span>
+    </div>
+    <!-- Envelope front face (covers card until it rises above) -->
+    <div id="env-body">
+      <div class="env-fold-right"></div>
+      <div class="env-seal">J&amp;R</div>
+    </div>
+    <!-- Flap -->
+    <div id="env-flap-wrap">
+      <div id="env-flap"></div>
+    </div>
+  </div>
+  <button id="env-skip" type="button">tap to continue</button>
+</div>
+
 <nav>
-  <a href="#venue">Venue</a>
-  <a href="#menu">Menu</a>
-  <a href="#order">Timeline</a>
-  <a href="#rsvp">RSVP</a>
-  <a href="#registry">Registry</a>
+  <a href="index.html">Home</a>
+  <a href="venue.html">Venue</a>
+  <a href="menu.html">Menu</a>
+  <a href="timeline.html">Timeline</a>
+  <a href="rsvp.html">RSVP</a>
+  <a href="registry.html">Registry</a>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-photo"></div>
   <div class="hero-overlay"></div>
@@ -258,921 +403,20 @@
     <p class="hero-date">St John's, Moira &amp; Lough Erne Resort</p>
     <p class="hero-location">Co. Down &amp; Co. Fermanagh · Northern Ireland</p>
   </div>
-  <div class="scroll-hint"><div class="scroll-line"></div><span>Scroll</span></div>
 </div>
-
-
-
-<!-- VENUE -->
-<section id="venue">
-  <span class="section-label">Finding Us</span>
-  <h2 class="section-title">Venue &amp; Directions</h2>
-  <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
-
-  <div style="margin-bottom:3rem;">
-    <h3 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.4rem;color:var(--rose-accent);margin-bottom:1.5rem;">The Ceremony</h3>
-    <div class="venue-grid">
-      <div>
-        <img class="venue-photo"
-          src="st-johns-moira-side.jpg"
-          alt="St John's Church, Moira"
-          onerror="this.style.background='var(--blush-pale)'">
-        <div class="map-box">
-          <span>St John's Church, Moira</span>
-          <a href="https://maps.google.com/?q=St+Johns+Church+Moira+Northern+Ireland" target="_blank">Open in Google Maps ↗</a>
-        </div>
-      </div>
-      <div>
-        <div class="vdr">
-          <div class="vicon">⛪</div>
-          <div><span class="vlabel">Church</span><p class="vvalue">St John's Church<br>Main Street, Moira<br>Co. Down, BT67 0LH</p></div>
-        </div>
-        <div class="vdr">
-          <div class="vicon">◷</div>
-          <div><span class="vlabel">Ceremony Time</span><p class="vvalue">12:00 noon<br>Please be seated by 11:45am</p></div>
-        </div>
-        <div class="vdr" style="border-bottom:none;">
-          <div class="vicon">⊕</div>
-          <div><span class="vlabel">Directions to Moira</span><p class="vvalue">Moira is located on the A3, approximately 15 miles south-west of Belfast. Parking is available in church car park on Meeting Street and Moira nain street .</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <h3 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.4rem;color:var(--rose-accent);margin-bottom:1.5rem;">The Reception</h3>
-    <div class="venue-grid">
-      <div>
-        <img class="venue-photo"
-          src="lough-erne_New.avif"
-          alt="Lough Erne Resort"
-          onerror="this.style.background='var(--blush-pale)'">
-        <div class="map-box">
-          <span>Lough Erne Resort, Enniskillen</span>
-          <a href="https://maps.google.com/?q=Lough+Erne+Resort+Enniskillen+Northern+Ireland" target="_blank">Open in Google Maps ↗</a>
-        </div>
-      </div>
-      <div>
-        <div class="vdr">
-          <div class="vicon">⌂</div>
-          <div><span class="vlabel">Reception Venue</span><p class="vvalue">Lough Erne Resort<br>Bellanaleck, Enniskillen<br>Co. Fermanagh, BT92 2EN</p></div>
-        </div>
-        <div class="vdr">
-          <div class="vicon">⊕</div>
-          <div><span class="vlabel">Directions to Resort</span><p class="vvalue">From Moira, head west approx. 80 miles via the A4. From Enniskillen town centre take the A4 west; after 5 miles follow signs for Bellanaleck and Lough Erne Resort. Free parking on site.</p></div>
-        </div>
-        <div class="vdr" style="border-bottom:none;">
-          <div class="vicon">★</div>
-          <div><span class="vlabel">Accommodation</span><p class="vvalue">A room block is reserved at the resort. Quote <strong>JEMMA &amp; RORY 2026</strong> when booking. Killyhevlin Hotel is also recommended nearby.</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- MENU -->
-<div class="menu-bg" id="menu">
-  <div class="menu-inner">
-    <span class="section-label">The Reception</span>
-    <h2 class="section-title">Wedding Dinner Menu</h2>
-  <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
-      <div class="menu-course">
-        <p class="menu-course-title">To Begin</p>
-        <div class="menu-item">
-          <span class="menu-item-name">Leek &amp; Potato Soup</span>
-          <p class="menu-item-desc">Freshly made cream of leek and potato soup, served with crusty bread and butter</p>
-        </div>
-      </div>
-      <div class="menu-course">
-        <p class="menu-course-title">The Main Event</p>
-        <div class="menu-item">
-          <span class="menu-item-name">Fillet Steak</span>
-          <p class="menu-item-desc">Aged fillet of beef, seasonal vegetables, roasted potatoes, red wine jus</p>
-        </div>
-        <div class="menu-item">
-          <span class="menu-item-name">Turkey &amp; Ham</span>
-          <p class="menu-item-desc">Roast turkey and glazed ham, seasonal vegetables, roasted potatoes, gravy</p>
-        </div>
-      </div>
-      <div class="menu-course">
-        <p class="menu-course-title">Something Sweet</p>
-        <div class="menu-item">
-          <span class="menu-item-name">Cheesecake</span>
-          <p class="menu-item-desc">Chef's seasonal cheesecake with cream and berry compote</p>
-        </div>
-      </div>
-      <div class="menu-note">Please indicate any dietary requirements and your main course choice on your RSVP. A children's menu is available on request.</div>
-  </div>
-</div>
-
-<!-- Timeline -->
-<section id="order">
-  <span class="section-label">The Day</span>
-  <h2 class="section-title">Timeline</h2>
-  <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
-  <p class="section-intro">Here's the shape of our day, we hope it helps you settle in and enjoy every moment with us.</p>
-
-  <div class="timeline">
-    <!-- Saturday -->
-    <div class="timeline-item featured">
-      <div class="timeline-dot"></div>
-      <p class="timeline-time">Saturday 19th September — 12:00 noon</p>
-      <h3 class="timeline-title">The Ceremony</h3>
-      <p class="timeline-desc">St John's Church, Moira. Please be seated by 11:45am. The ceremony will last approximately 45 minutes and will include readings, vows, and a blessing. We kindly ask that phones are on silent and no photos are taken during the ceremony.</p>
-      <p class="timeline-desc">Please make your way to Lough Erne where there will be canapés and refreshments on arrival.</p>
-    </div>
-
-    <div class="timeline-item featured">
-      <div class="timeline-dot"></div>
-      <p class="timeline-time">3:30 pm</p>
-      <h3 class="timeline-title">Drinks Reception</h3>
-      <p class="timeline-desc">Join us at Lough Erne Resort, The Ross Suite, for a welcome drink and canapés, with live music.</p>
-    </div>
-
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <p class="timeline-time">5:45 pm</p>
-      <h3 class="timeline-title">Call to Dinner</h3>
-      <p class="timeline-desc">Guests are invited to take their seats for the wedding dinner, followed by speeches from the father of the bride, best man, and the groom.</p>
-    </div>
-
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <p class="timeline-time">9:00 pm</p>
-      <h3 class="timeline-title">First Dance</h3>
-      <p class="timeline-desc">The band takes to the stage as we take our first dance as husband and wife. Evening guests are welcome from this point, a night of dancing awaits!</p>
-    </div>
-
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <p class="timeline-time">10:00 pm</p>
-      <h3 class="timeline-title">Signature Afters</h3>
-      <p class="timeline-desc">A late-night buffet is served to keep everyone fuelled for the dancefloor. The bar remains open and the music plays on until the early hours.</p>
-    </div>
-
-    <!-- Sunday -->
-    <div class="timeline-item day2 featured">
-      <div class="timeline-dot"></div>
-      <p class="timeline-time">Sunday 20th September — 9:00 am</p>
-      <h3 class="timeline-title">Morning Breakfast</h3>
-      <p class="timeline-desc">Join us for a leisurely breakfast at the Lough Erne Resort before you head home. A lovely way to round off the celebrations with family and friends over the beautiful lough.</p>
-    </div>
-  </div>
-</section>
-
-<!-- RSVP -->
-<div class="rsvp-bg" id="rsvp">
-  <div class="rsvp-inner">
-    <span class="section-label">You're Invited</span>
-    <h2 class="section-title">RSVP</h2>
-    <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
-    <p class="section-intro">Please let us know if you can join us by <strong>1st August 2026</strong>.</p>
-
-    <div id="rsvpForm">
-      <div class="form-grid">
-        <div class="form-group"><label for="first">First Name</label><input type="text" id="first" placeholder="Your first name"></div>
-        <div class="form-group"><label for="last">Last Name</label><input type="text" id="last" placeholder="Your last name"></div>
-      </div>
-
-      <div class="form-group" style="margin-bottom:1.1rem;">
-        <label>Will you be attending?</label>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="attending" value="yes" onchange="toggleAttending(true)"> Yes, I'll be there!</label>
-          <label class="radio-option"><input type="radio" name="attending" value="no" onchange="toggleAttending(false)"> Unable to attend</label>
-        </div>
-      </div>
-
-      <div id="attendingFields" style="display:none;">
-        <div class="form-grid">
-          <div class="form-group full">
-            <label for="main-choice">Main Course Choice</label>
-            <select id="main-choice" onchange="updateSteakOption()">
-              <option value="">Please select</option>
-              <option>Fillet Steak</option>
-              <option>Turkey &amp; Ham</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-grid" style="margin-top:0;">
-          <div class="form-group full" id="steakOptionGroup" style="display:none;">
-            <label for="steak-cook">How would you like your steak cooked?</label>
-            <select id="steak-cook">
-              <option value="">Please select</option>
-              <option>Pink</option>
-              <option>Well Done</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-grid" style="margin-top:0;">
-          <div class="form-group">
-            <label for="guests">Number in your party (inc. yourself)</label>
-            <select id="guests" onchange="updateExtraGuests()">
-              <option value="1">1 — just me</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="dietary">Dietary Requirements</label>
-            <input type="text" id="dietary" placeholder="e.g. vegetarian, gluten free...">
-          </div>
-        </div>
-
-        <div class="extra-guests" id="extraGuests">
-          <span class="extra-guests-lbl">Additional Guest Names</span>
-          <div id="extraGuestFields"></div>
-        </div>
-
-        <div class="form-group" style="margin:1.1rem 0;">
-          <label for="song">Song Request for the Dancefloor 🎵</label>
-          <input type="text" id="song" placeholder="Every great playlist needs a banger...">
-        </div>
-      </div>
-
-      <div class="form-group" style="margin-bottom:1.4rem;">
-        <label for="message">A Message for the Happy Couple</label>
-        <textarea id="message" placeholder="Share your warmest wishes, a fond memory, or some unsolicited advice..."></textarea>
-      </div>
-
-      <button class="btn-submit" id="submitRsvpBtn" onclick="submitRSVP()">Send my RSVP</button>
-    </div>
-
-    <div class="rsvp-success" id="rsvpSuccess">
-      <h3>Thank you so much!</h3>
-      <p>We've received your RSVP and we're so excited to celebrate with you.<br>We'll be in touch with further details closer to the big day.</p>
-    </div>
-  </div>
-</div>
-
-<!-- REGISTRY -->
-<div class="registry-bg" id="registry">
-  <div class="registry-inner">
-    <span class="section-label">With Love</span>
-    <h2 class="section-title">Registry</h2>
-    <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
-    <div class="registry-poem">
-      We&apos;ve built a home and filled it well,<br>
-      With all the things we need,<br>
-      So if you&apos;re thinking of a gift,<br>
-      We&apos;d like to share a little deed.<br><br>
-
-      We&apos;re dreaming of a honeymoon<br>
-      To celebrate our start,<br>
-      So if you&apos;d like to help us go<br>
-      It would mean the world to our hearts.<br><br>
-
-      Your presence at our wedding<br>
-      Is truly gift enough,<br>
-      But a little towards our honeymoon<br>
-      Would help us start with love.
-    </div>
-  </div>
-</div>
-
-<!-- GUEST LIST (ADMIN) -->
-<div class="admin-section" id="guestlist">
-  <div class="admin-inner">
-    <span class="section-label">For the Couple</span>
-    <h2 class="section-title">Guest List</h2>
-    <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
-
-    <div class="admin-lock" id="adminLock">
-      <div class="admin-input-row">
-        <input type="password" id="adminPass" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkAdmin()">
-        <button class="btn-admin" onclick="checkAdmin()">View List</button>
-      </div>
-      <p id="adminError" style="color:#943a3a;font-size:0.74rem;margin-top:0.6rem;display:none;">Incorrect password — please try again.</p>
-    </div>
-
-    <div class="guest-table-wrap" id="guestTableWrap">
-      <div class="guest-stats">
-        <div class="stat-card"><span class="stat-num" id="statTotal">0</span><p class="stat-label">RSVPs Received</p></div>
-        <div class="stat-card"><span class="stat-num" id="statYes">0</span><p class="stat-label">Total Guests Attending</p></div>
-        <div class="stat-card"><span class="stat-num" id="statDeclined">0</span><p class="stat-label">Declined</p></div>
-      </div>
-
-      <div class="admin-toolbar">
-        <input type="text" id="searchGuests" placeholder="Search guests..." oninput="renderGuestTable()" style="flex:1;min-width:160px;">
-        <button class="btn-export" onclick="exportToExcel()">⬇ Export to Excel</button>
-      </div>
-
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Guest</th>
-              <th>Attending?</th>
-              <th>Party</th>
-              <th>Additional Guests</th>
-              <th>Main Course</th>
-              <th>Steak Cook</th>
-              <th>Dietary</th>
-              <th>Song Request</th>
-              <th>Message</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="guestTbody"></tbody>
-        </table>
-      </div>
-      <p id="noGuestsMsg" style="text-align:center;color:var(--light-text);font-style:italic;padding:2.5rem 0;display:none;">No RSVPs received yet — check back soon!</p>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-bg" id="editModal">
-  <div class="modal">
-    <h3>Edit Guest</h3>
-    <input type="hidden" id="editIndex">
-    <div class="modal-grid">
-      <div class="form-group"><label>First Name</label><input id="eFirst"></div>
-      <div class="form-group"><label>Last Name</label><input id="eLast"></div>
-    </div>
-    <div class="modal-grid">
-      <div class="form-group">
-        <label>Attending</label>
-        <select id="eAttending">
-          <option value="yes">Yes — Attending</option>
-          <option value="no">Declined</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Party Size</label>
-        <select id="eGuests">
-          <option>1</option><option>2</option><option>3</option>
-          <option>4</option><option>5</option><option>6</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Main Course</label><input id="eMain" placeholder="e.g. Fillet Steak"></div>
-      <div class="form-group"><label>Steak Cook</label><input id="eSteakCook" placeholder="e.g. Pink, Well Done"></div>
-      <div class="form-group"><label>Dietary Requirements</label><input id="eDietary"></div>
-    </div>
-    <div class="form-group" style="margin-bottom:0.9rem;"><label>Song Request</label><input id="eSong"></div>
-    <div class="form-group"><label>Message</label><textarea id="eMessage" style="min-height:70px;"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveEdit()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <p class="footer-names">Jemma &amp; Rory</p>
-  <p>19 September 2026 · St John's, Moira &amp; Lough Erne Resort, Enniskillen</p>
-  <br>
-  <p style="font-size:0.68rem;opacity:0.5;">Made with love ♡</p>
-</footer>
-
-<!-- SheetJS for Excel export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-/* ── Storage ── */
-const ADMIN_PASSWORD = 'lougherne2026';
-const STORAGE_KEY    = 'wedding_rsvps_jemmarory';
-// Optional: set this to your Google Apps Script / API URL for shared, persistent storage.
-const RSVP_API_URL  = 'https://script.google.com/macros/s/AKfycbzCbcGWwBfjYAaOT0WDZ8GtP_-ax-8mJDpINb6ZY4N9ooKf5KfB7vitTiUmF2PBSudGsw/exec';
-const RSVP_API_KEY  = '';
-
-function withApiKey(url){
-  if(!RSVP_API_KEY) return url;
-  const sep = url.includes('?') ? '&' : '?';
-  return `${url}${sep}key=${encodeURIComponent(RSVP_API_KEY)}`;
-}
-
-function getLocalRSVPs(){
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
-  catch { return []; }
-}
-
-function saveLocalRSVPs(arr){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-}
-
-async function getRSVPs(){
-  if(!RSVP_API_URL) return getLocalRSVPs();
-  try {
-    const res = await fetch(withApiKey(RSVP_API_URL),{ method:'GET', cache:'no-store' });
-    if(!res.ok) throw new Error('Fetch failed');
-    const data = await res.json();
-    const rows = Array.isArray(data) ? data : (Array.isArray(data.rows) ? data.rows : (Array.isArray(data.data) ? data.data : []));
-    return rows;
-  } catch {
-    return getLocalRSVPs();
+(function () {
+  var overlay = document.getElementById('env-overlay');
+  if (!overlay) return;
+  function dismiss() {
+    overlay.classList.add('env-done');
+    setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 900);
   }
-}
-
-async function saveRSVP(data){
-  if(RSVP_API_URL){
-    try {
-      await fetch(withApiKey(RSVP_API_URL),{
-        method:'POST',
-        // Keep default content-type (text/plain) to avoid CORS preflight in Apps Script web apps.
-        body: JSON.stringify({ action:'create', entry:data })
-      });
-    } catch {}
-  }
-  const local = getLocalRSVPs();
-  local.push(data);
-  saveLocalRSVPs(local);
-}
-
-async function replaceAllRSVPs(arr){
-  if(RSVP_API_URL){
-    try {
-      await fetch(withApiKey(RSVP_API_URL),{
-        method:'POST',
-        // Keep default content-type (text/plain) to avoid CORS preflight in Apps Script web apps.
-        body: JSON.stringify({ action:'replaceAll', rows:arr })
-      });
-    } catch {}
-  }
-  saveLocalRSVPs(arr);
-}
-
-let adminRSVPCache = [];
-let isSubmittingRSVP = false;
-
-/* ── RSVP Form ── */
-function toggleAttending(yes){ document.getElementById('attendingFields').style.display=yes?'block':'none'; }
-
-function updateSteakOption(){
-  const mainChoice = document.getElementById('main-choice').value;
-  const steakGroup = document.getElementById('steakOptionGroup');
-  if(mainChoice === 'Fillet Steak'){
-    steakGroup.style.display = 'block';
-  } else {
-    steakGroup.style.display = 'none';
-    document.getElementById('steak-cook').value = '';
-  }
-}
-
-function updateExtraGuests(){
-  const n=parseInt(document.getElementById('guests').value,10);
-  const wrap=document.getElementById('extraGuests');
-  const flds=document.getElementById('extraGuestFields');
-  if(n<=1){ wrap.style.display='none'; flds.innerHTML=''; return; }
-  wrap.style.display='block';
-  let h='';
-  for(let i=2;i<=n;i++){
-    h+=`<div class="xg-row" style="border:1px solid var(--blush); padding:1rem; margin-bottom:1rem; border-radius:2px;">
-      <div style="grid-column:1/-1; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--blush-deep); margin-bottom:0.8rem; font-weight:500;">Guest ${i}</div>
-      <div class="form-group"><label for="g${i}f">First Name</label><input type="text" id="g${i}f" placeholder="First name"></div>
-      <div class="form-group"><label for="g${i}l">Last Name</label><input type="text" id="g${i}l" placeholder="Last name"></div>
-      <div class="form-group full"><label for="g${i}m">Main Course Choice</label><select id="g${i}m" onchange="updateSteakOptionForGuest(${i})"><option value="">Please select</option><option>Fillet Steak</option><option>Turkey &amp; Ham</option></select></div>
-      <div class="form-group full" id="steakOptionGroup${i}" style="display:none;"><label for="g${i}s">How would you like your steak cooked?</label><select id="g${i}s"><option value="">Please select</option><option>Pink</option><option>Well Done</option></select></div>
-      <div class="form-group full"><label for="g${i}d">Dietary Requirements</label><input type="text" id="g${i}d" placeholder="e.g. vegetarian, gluten free..."></div>
-      <div class="form-group full"><label for="g${i}c"><input type="checkbox" id="g${i}c" style="width:auto; margin-right:0.5rem;">Children's menu</label></div>
-    </div>`;
-  }
-  flds.innerHTML=h;
-}
-
-function getExtraGuests(){
-  const n=parseInt((document.getElementById('guests')||{value:'1'}).value,10);
-  const guests=[];
-  for(let i=2;i<=n;i++){
-    const f=((document.getElementById('g'+i+'f')||{}).value||'').trim();
-    const l=((document.getElementById('g'+i+'l')||{}).value||'').trim();
-    const m=((document.getElementById('g'+i+'m')||{}).value||'').trim();
-    const s=((document.getElementById('g'+i+'s')||{}).value||'').trim();
-    const d=((document.getElementById('g'+i+'d')||{}).value||'').trim();
-    const c=(document.getElementById('g'+i+'c')||{}).checked||false;
-    const nm=(f+' '+l).trim();
-    if(nm){
-      guests.push({
-        name: nm,
-        mainCourse: m,
-        steakCook: s,
-        dietary: d,
-        childrensMenu: c
-      });
-    }
-  }
-  return guests;
-}
-
-function updateSteakOptionForGuest(guestNum){
-  const mainChoice = document.getElementById('g'+guestNum+'m').value;
-  const steakGroup = document.getElementById('steakOptionGroup'+guestNum);
-  if(mainChoice === 'Fillet Steak'){
-    steakGroup.style.display = 'block';
-  } else {
-    steakGroup.style.display = 'none';
-    document.getElementById('g'+guestNum+'s').value = '';
-  }
-}
-
-async function submitRSVP(){
-  if (isSubmittingRSVP) return;
-
-  const first=document.getElementById('first').value.trim();
-  const last=document.getElementById('last').value.trim();
-  const att=document.querySelector('input[name="attending"]:checked');
-  const isYes=att&&att.value==='yes';
-  if(!first||!last){ alert('Please enter your name.'); return; }
-  if(!att){ alert('Please let us know if you can attend.'); return; }
-
-  const submitBtn = document.getElementById('submitRsvpBtn');
-  isSubmittingRSVP = true;
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending...';
-  }
-
-  const entry={
-    name:first+' '+last,
-    attending:att.value,
-    guests:   isYes?document.getElementById('guests').value:'1',
-    mainCourse: isYes?document.getElementById('main-choice').value:'',
-    steakCook: isYes&&document.getElementById('main-choice').value==='Fillet Steak'?document.getElementById('steak-cook').value:'',
-    extraGuests: isYes?getExtraGuests():[],
-    dietary: isYes?document.getElementById('dietary').value.trim():'',
-    song:    isYes?document.getElementById('song').value.trim():'',
-    message: document.getElementById('message').value.trim(),
-    date:    new Date().toLocaleDateString('en-GB')
-  };
-  try {
-    await saveRSVP(entry);
-    document.getElementById('rsvpForm').style.display='none';
-    document.getElementById('rsvpSuccess').style.display='block';
-  } catch (_err) {
-    alert('We could not send your RSVP right now. Please try again.');
-    isSubmittingRSVP = false;
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send my RSVP';
-    }
-  }
-}
-
-function downloadCalendarEvent(entry){
-  // Generate .ics file for calendar
-  const ceremonyStartUTC = '20260919T110000Z'; // 11:00 UTC (11:45 seat time, ceremony at 12:00)
-  const ceremonyEndUTC = '20260919T125500Z';   // ~1 hour duration
-  const receptionStartUTC = '20260919T143000Z'; // 3:30 PM
-  const receptionEndUTC = '20260920T000000Z';   // Midnight
-  
-  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
-  const uid1 = 'jemmarory-ceremony-2026@wedding';
-  const uid2 = 'jemmarory-reception-2026@wedding';
-  
-  const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Jemma & Rory Wedding//EN
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-X-WR-CALNAME:Jemma & Rory Wedding 2026
-X-WR-TIMEZONE:Europe/London
-BEGIN:VEVENT
-UID:${uid1}
-DTSTAMP:${now}
-DTSTART:${ceremonyStartUTC}
-DTEND:${ceremonyEndUTC}
-SUMMARY:Jemma & Rory - Wedding Ceremony
-DESCRIPTION:St John's Church, Moira\\n\\nCo. Down, BT67 0LH\\n\\nPlease be seated by 11:45am
-LOCATION:St John's Church, Main Street, Moira, Co. Down, BT67 0LH, Northern Ireland
-ORGANIZER;CN=Jemma & Rory:mailto:jemmarory@wedding
-ATTENDEE;CN=${entry.name}:mailto:guest@wedding
-STATUS:CONFIRMED
-SEQUENCE:0
-END:VEVENT
-BEGIN:VEVENT
-UID:${uid2}
-DTSTAMP:${now}
-DTSTART:${receptionStartUTC}
-DTEND:${receptionEndUTC}
-SUMMARY:Jemma & Rory - Wedding Reception
-DESCRIPTION:Drinks reception from 3:30pm\\nDinner from 5:45pm\\nFirst dance at 9:00pm\\nDancefloor from 9:00pm to midnight
-LOCATION:Lough Erne Resort, Bellanaleck, Enniskillen, Co. Fermanagh, BT92 2EN, Northern Ireland
-ORGANIZER;CN=Jemma & Rory:mailto:jemmarory@wedding
-ATTENDEE;CN=${entry.name}:mailto:guest@wedding
-STATUS:CONFIRMED
-SEQUENCE:0
-END:VEVENT
-END:VCALENDAR`;
-
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'Jemma_Rory_Wedding_2026.ics';
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
-
-/* ── Admin ── */
-async function checkAdmin(){
-  if(document.getElementById('adminPass').value===ADMIN_PASSWORD){
-    document.getElementById('adminLock').style.display='none';
-    document.getElementById('guestTableWrap').style.display='block';
-    await renderGuestTable();
-  } else {
-    document.getElementById('adminError').style.display='block';
-  }
-}
-
-async function renderGuestTable(){
-  const search=(document.getElementById('searchGuests')||{value:''}).value.toLowerCase();
-  const all=await getRSVPs();
-  adminRSVPCache = all;
-  let list=all;
-  if(search) list=list.filter(r=>(r.name||'').toLowerCase().includes(search));
-  const yesAll=all.filter(r=>r.attending==='yes');
-  const totalG=yesAll.reduce((s,r)=>s+(parseInt(r.guests)||1),0);
-  document.getElementById('statTotal').textContent=all.length;
-  document.getElementById('statYes').textContent=totalG;
-  document.getElementById('statDeclined').textContent=all.filter(r=>r.attending==='no').length;
-
-  const tbody=document.getElementById('guestTbody');
-  const noMsg=document.getElementById('noGuestsMsg');
-
-  if(all.length===0){ noMsg.style.display='block'; tbody.innerHTML=''; return; }
-  noMsg.style.display='none';
-
-  // We need the real index from the full list for edit/delete
-  const fullList=all;
-  tbody.innerHTML=list.map(r=>{
-    const realIdx=fullList.findIndex(x=>x.name===r.name&&x.date===r.date);
-    const extra=(r.extraGuests&&r.extraGuests.length)?r.extraGuests.map(g=>{
-      let desc=`${g.name}${g.mainCourse?' ('+g.mainCourse+(g.steakCook?' - '+g.steakCook:'')+')':''}`;
-      if(g.dietary) desc+=`<br>Dietary: ${g.dietary}`;
-      if(g.childrensMenu) desc+='<br>Children\'s Menu: Yes';
-      return desc;
-    }).join('<br><br>'):'—';
-    return `<tr>
-      <td><strong>${esc(r.name)}</strong></td>
-      <td><span class="badge ${r.attending==='yes'?'badge-yes':'badge-no'}">${r.attending==='yes'?'Attending':'Declined'}</span></td>
-      <td>${r.guests||1}</td>
-      <td style="font-size:.8rem">${extra}</td>
-      <td>${esc(r.mainCourse||'—')}</td>
-      <td>${esc(r.steakCook||'—')}</td>
-      <td>${esc(r.dietary||'—')}</td>
-      <td>${esc(r.song||'—')}</td>
-      <td style="max-width:160px;font-style:italic;color:var(--light-text);font-size:.78rem">${r.message?'"'+esc(r.message)+'"':'—'}</td>
-      <td style="white-space:nowrap">${r.date}</td>
-      <td><div class="row-actions">
-        <button class="btn-edit" onclick="openEdit(${realIdx})">Edit</button>
-        <button class="btn-delete" onclick="deleteGuest(${realIdx})">Delete</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-
-/* ── Delete ── */
-async function deleteGuest(idx){
-  if(!confirm('Remove this guest from the list?')) return;
-  const list=await getRSVPs();
-  list.splice(idx,1);
-  await replaceAllRSVPs(list);
-  await renderGuestTable();
-}
-
-/* ── Edit ── */
-function openEdit(idx){
-  const r=adminRSVPCache[idx];
-  if(!r) return;
-  const parts=(r.name||'').split(' ');
-  document.getElementById('editIndex').value=idx;
-  document.getElementById('eFirst').value=parts[0]||'';
-  document.getElementById('eLast').value=parts.slice(1).join(' ')||'';
-  document.getElementById('eAttending').value=r.attending||'yes';
-  document.getElementById('eGuests').value=r.guests||'1';
-  document.getElementById('eMain').value=r.mainCourse||'';
-  document.getElementById('eSteakCook').value=r.steakCook||'';
-  document.getElementById('eDietary').value=r.dietary||'';
-  document.getElementById('eSong').value=r.song||'';
-  document.getElementById('eMessage').value=r.message||'';
-  document.getElementById('editModal').classList.add('open');
-}
-function closeModal(){ document.getElementById('editModal').classList.remove('open'); }
-async function saveEdit(){
-  const idx=parseInt(document.getElementById('editIndex').value,10);
-  const list=await getRSVPs();
-  if(!list[idx]) return;
-  const first=document.getElementById('eFirst').value.trim();
-  const last=document.getElementById('eLast').value.trim();
-  list[idx]={
-    ...list[idx],
-    name:(first+' '+last).trim(),
-    attending:document.getElementById('eAttending').value,
-    guests:document.getElementById('eGuests').value,
-    mainCourse:document.getElementById('eMain').value.trim(),
-    steakCook:document.getElementById('eSteakCook').value.trim(),
-    dietary:document.getElementById('eDietary').value.trim(),
-    song:document.getElementById('eSong').value.trim(),
-    message:document.getElementById('eMessage').value.trim(),
-  };
-  await replaceAllRSVPs(list);
-  closeModal();
-  await renderGuestTable();
-}
-// Close modal on bg click
-document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
-
-/* ── Excel Export ── */
-async function exportToExcel(){
-  const list=await getRSVPs();
-  if(!list.length){ alert('No RSVPs to export yet!'); return; }
-  const rows=[];
-  list.forEach(r=>{
-    const attendingLabel = r.attending==='yes'?'Yes':'No';
-    const partySize = parseInt(r.guests,10) || 1;
-    const mainName = r.name || '';
-
-    rows.push({
-      'Guest Name':       mainName,
-      'Guest Type':       'Main RSVP',
-      'Primary RSVP':     mainName,
-      'Attending':        attendingLabel,
-      'Party Size':       partySize,
-      'Main Course':      r.mainCourse||'',
-      'Steak Cook':       r.steakCook||'',
-      'Dietary':          r.dietary||'',
-      'Song Request':     r.song||'',
-      'Message':          r.message||'',
-      'RSVP Date':        r.date||''
-    });
-
-    (r.extraGuests||[]).forEach(g=>{
-      rows.push({
-        'Guest Name':       g.name||'',
-        'Guest Type':       g.childrensMenu ? 'Additional Guest (Child)' : 'Additional Guest',
-        'Primary RSVP':     mainName,
-        'Attending':        attendingLabel,
-        'Party Size':       partySize,
-        'Main Course':      g.mainCourse||'',
-        'Steak Cook':       g.steakCook||'',
-        'Dietary':          g.dietary||'',
-        'Song Request':     '',
-        'Message':          '',
-        'RSVP Date':        r.date||''
-      });
-    });
-  });
-
-  // Fallback for cases where SheetJS fails to load on hosted pages.
-  if(typeof XLSX==='undefined'){
-    exportToCSV(rows,'JemmaAndRory_GuestList.csv');
-    return;
-  }
-
-  try {
-    const ws=XLSX.utils.json_to_sheet(rows);
-    // Column widths
-    ws['!cols']=[{wch:22},{wch:10},{wch:11},{wch:50},{wch:18},{wch:14},{wch:22},{wch:24},{wch:40},{wch:12}];
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,'Guest List',ws);
-    const xlsxData=XLSX.write(wb,{bookType:'xlsx',type:'array'});
-    const blob=new Blob([xlsxData],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    triggerDownload(blob,'JemmaAndRory_GuestList.xlsx');
-  } catch (e) {
-    exportToCSV(rows,'JemmaAndRory_GuestList.csv');
-  }
-}
-
-function exportToCSV(rows,filename){
-  const headers=Object.keys(rows[0]||{});
-  const escCSV=(v)=>{
-    const s=String(v??'');
-    return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;
-  };
-  const lines=[headers.join(',')];
-  rows.forEach(r=>{
-    lines.push(headers.map(h=>escCSV(r[h])).join(','));
-  });
-  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
-  triggerDownload(blob,filename);
-}
-
-function triggerDownload(blob,filename){
-  if(window.navigator && window.navigator.msSaveOrOpenBlob){
-    window.navigator.msSaveOrOpenBlob(blob,filename);
-    return;
-  }
-  const link=document.createElement('a');
-  link.href=URL.createObjectURL(blob);
-  link.download=filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  setTimeout(()=>URL.revokeObjectURL(link.href),500);
-}
-
-/* ── Engagement photo slots ── */
-const PHOTO_STORAGE = 'wedding_engagement_photos';
-const NUM_SLOTS = 6;
-
-let photosUnlocked = false;
-
-function buildEngagementGrid(){
-  const saved = JSON.parse(localStorage.getItem(PHOTO_STORAGE)||'[]');
-  const grid = document.getElementById('engagementGrid');
-  if(!grid) return;
-  grid.innerHTML='';
-  const hasPhotos = saved.some(p => p);
-  for(let i=0;i<NUM_SLOTS;i++){
-    const slot=document.createElement('div');
-    slot.className='engagement-slot';
-    slot.dataset.index=i;
-    if(saved[i]){
-      // Everyone can see uploaded photos, only unlocked users get remove button
-      slot.innerHTML=`<img src="${saved[i]}" alt="Engagement photo ${i+1}">${photosUnlocked ? '<button class="remove-btn" onclick="removePhoto('+i+',event)">✕</button>' : ''}`;
-    } else if(photosUnlocked){
-      // Only show upload slots if unlocked
-      slot.innerHTML=`<input type="file" accept="image/*" onchange="loadPhoto(${i},event)"><div class="engagement-slot-icon">+</div><span class="engagement-slot-text">Add Photo</span>`;
-    } else {
-      // Guest view — empty slots are hidden
-      slot.style.display='none';
-    }
-    grid.appendChild(slot);
-  }
-  // If no photos at all and not unlocked, hide the grid entirely
-  if(!hasPhotos && !photosUnlocked){
-    grid.style.display='none';
-  } else {
-    grid.style.display='grid';
-  }
-}
-
-function unlockPhotos(){
-  const passInput=document.getElementById('photoPass');
-  if(!passInput) return;
-  if(passInput.value === ADMIN_PASSWORD){
-    photosUnlocked = true;
-    const photoLock=document.getElementById('photoLock');
-    const photoUploadControls=document.getElementById('photoUploadControls');
-    const photoHint=document.getElementById('photoHint');
-    if(photoLock) photoLock.style.display='none';
-    if(photoUploadControls) photoUploadControls.style.display='block';
-    if(photoHint) photoHint.style.display='block';
-    buildEngagementGrid();
-  } else {
-    const photoError=document.getElementById('photoError');
-    if(photoError) photoError.style.display='block';
-  }
-}
-
-function loadPhoto(idx,e){
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    const saved=JSON.parse(localStorage.getItem(PHOTO_STORAGE)||'[]');
-    saved[idx]=ev.target.result;
-    localStorage.setItem(PHOTO_STORAGE,JSON.stringify(saved));
-    buildEngagementGrid();
-  };
-  reader.readAsDataURL(file);
-}
-
-function removePhoto(idx,e){
-  e.stopPropagation();
-  const saved=JSON.parse(localStorage.getItem(PHOTO_STORAGE)||'[]');
-  saved[idx]=null;
-  localStorage.setItem(PHOTO_STORAGE,JSON.stringify(saved));
-  buildEngagementGrid();
-}
-
-/* ── Nav ── */
-document.querySelectorAll('nav a').forEach(a=>{
-  a.addEventListener('click',e=>{
-    e.preventDefault();
-    const el=document.getElementById(a.getAttribute('href').slice(1));
-    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-  });
-});
-
-/* ── Map Preview ── */
-document.querySelectorAll('.map-box a[data-image]').forEach(link => {
-  link.addEventListener('mouseenter', () => {
-    let preview = link.querySelector('.map-preview');
-    if (!preview) {
-      preview = document.createElement('div');
-      preview.className = 'map-preview';
-      preview.style.backgroundImage = `url('${link.getAttribute('data-image')}')`;
-      link.appendChild(preview);
-    }
-    setTimeout(() => { preview.style.opacity = '1'; }, 10);
-  });
-  link.addEventListener('mouseleave', () => {
-    const preview = link.querySelector('.map-preview');
-    if (preview) {
-      preview.style.opacity = '0';
-    }
-  });
-});
-
-/* ── Init ── */
-buildEngagementGrid();
+  document.getElementById('env-skip').addEventListener('click', dismiss);
+  // Auto-dismiss ~1 s after card finishes rising (flap: 0.45+0.9=1.35s, card: 1.6+1.1=2.7s, hold 1s → 3.7s)
+  setTimeout(dismiss, 3700);
+}());
 </script>
 </body>
 </html>

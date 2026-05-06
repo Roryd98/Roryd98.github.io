@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venue | Jemma &amp; Rory</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #A85A68;
+    --blush-pale: #F4EFEA;
+    --rose-accent: #9B8B6B;
+    --white: #fff;
+    --ivory: #FFFCF9;
+    --dark-text: #2D2D2D;
+    --mid-text: #6B6B6B;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Jost', sans-serif; background: var(--ivory); color: var(--dark-text); }
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;
+    padding: 1rem;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+  }
+  nav a {
+    text-decoration: none; color: var(--mid-text);
+    font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  nav a.active { color: var(--blush); }
+  main { max-width: 980px; margin: 0 auto; padding: 3rem 1.2rem 4rem; }
+  .section-label { font-size: 0.6rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--blush); margin-bottom: 0.8rem; display: block; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem,5vw,3.2rem); font-style: italic; font-weight: 300; color: var(--rose-accent); margin-bottom: 1.3rem; }
+  .ornament { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .ornament-line { flex: 1; height: 1px; background: var(--blush); }
+  .ornament-diamond { width: 8px; height: 8px; background: var(--blush); transform: rotate(45deg); }
+  .venue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 2.8rem; }
+  .venue-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 3px; background: var(--blush-pale); }
+  .map-box { margin-top: 0.8rem; background: #fff; border: 1px solid var(--blush-pale); border-radius: 3px; padding: 0.9rem; }
+  .map-box span { display: block; margin-bottom: 0.45rem; color: var(--rose-accent); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.03rem; }
+  .map-box a { color: var(--blush); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.07em; }
+  .vdr { display: flex; gap: 0.9rem; margin-bottom: 0.9rem; border-bottom: 1px solid var(--blush-pale); padding-bottom: 0.9rem; }
+  .vdr:last-child { border-bottom: none; }
+  .vicon { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--blush-pale); display: flex; align-items: center; justify-content: center; color: var(--blush); }
+  .vlabel { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blush); display: block; margin-bottom: 0.2rem; }
+  .vvalue { font-size: 0.88rem; color: var(--mid-text); line-height: 1.6; }
+  h3 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.45rem; color: var(--rose-accent); margin-bottom: 1rem; }
+  @media (max-width: 760px) { .venue-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">Home</a>
+  <a href="venue.html" class="active">Venue</a>
+  <a href="menu.html">Menu</a>
+  <a href="timeline.html">Timeline</a>
+  <a href="rsvp.html">RSVP</a>
+  <a href="registry.html">Registry</a>
+</nav>
+<main>
+  <span class="section-label">Finding Us</span>
+  <h1 class="section-title">Venue &amp; Directions</h1>
+  <div class="ornament"><div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div></div>
+
+  <h3>The Ceremony</h3>
+  <div class="venue-grid">
+    <div>
+      <img class="venue-photo" src="st-johns-moira-side.jpg" alt="St John's Church, Moira">
+      <div class="map-box">
+        <span>St John's Church, Moira</span>
+        <a href="https://maps.google.com/?q=St+Johns+Church+Moira+Northern+Ireland" target="_blank">Open in Google Maps</a>
+      </div>
+    </div>
+    <div>
+      <div class="vdr"><div class="vicon">⛪</div><div><span class="vlabel">Church</span><p class="vvalue">St John's Church<br>Main Street, Moira<br>Co. Down, BT67 0LH</p></div></div>
+      <div class="vdr"><div class="vicon">◷</div><div><span class="vlabel">Ceremony Time</span><p class="vvalue">12:00 noon<br>Please be seated by 11:45am</p></div></div>
+      <div class="vdr"><div class="vicon">⊕</div><div><span class="vlabel">Directions to Moira</span><p class="vvalue">Moira is located on the A3, approximately 15 miles south-west of Belfast. Parking is available in the church car park on Meeting Street.</p></div></div>
+    </div>
+  </div>
+
+  <h3>The Reception</h3>
+  <div class="venue-grid">
+    <div>
+      <img class="venue-photo" src="lough-erne_New.avif" alt="Lough Erne Resort">
+      <div class="map-box">
+        <span>Lough Erne Resort, Enniskillen</span>
+        <a href="https://maps.google.com/?q=Lough+Erne+Resort+Enniskillen+Northern+Ireland" target="_blank">Open in Google Maps</a>
+      </div>
+    </div>
+    <div>
+      <div class="vdr"><div class="vicon">⌂</div><div><span class="vlabel">Reception Venue</span><p class="vvalue">Lough Erne Resort<br>Bellanaleck, Enniskillen<br>Co. Fermanagh, BT92 2EN</p></div></div>
+      <div class="vdr"><div class="vicon">⊕</div><div><span class="vlabel">Directions to Resort</span><p class="vvalue">From Moira, head west approx. 80 miles via the A4. From Enniskillen town centre take the A4 west; after 5 miles follow signs for Bellanaleck and Lough Erne Resort.</p></div></div>
+      <div class="vdr"><div class="vicon">★</div><div><span class="vlabel">Accommodation</span><p class="vvalue">A room block is reserved at the resort. Quote <strong>JEMMA &amp; RORY 2026</strong> when booking.</p></div></div>
+      <div class="vdr"><div class="vicon">◇</div><div><span class="vlabel">Drinks &amp; Canapé Reception</span><p class="vvalue">Join us from 3:00 pm for a drinks and canapé reception on arrival.</p></div></div>
+    </div>
+  </div>
+</main>
+</body>
+</html>
