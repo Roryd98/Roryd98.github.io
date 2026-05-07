@@ -838,14 +838,12 @@ async function hydrateExistingResponse() {
 
   const list = await getRSVPs();
   const selectedNames = Array.isArray(selectedInvite.guestNames) ? selectedInvite.guestNames : [selectedInvite.leadName];
-  const existing = list.find((r) => {
+  const existingRows = list.filter((r) => {
     if (r.inviteId && r.inviteId === selectedInvite.id) return true;
-    const mainNameMatch = selectedNames.some((n) => normalize(r.name) === normalize(n));
-    if (mainNameMatch) return true;
-    const extra = Array.isArray(r.extraGuests) ? r.extraGuests : [];
-    return extra.some((g) => selectedNames.some((n) => normalize(g.name) === normalize(n)));
+    return selectedNames.some((n) => normalize(r.name) === normalize(n));
   });
-  if (!existing) return;
+  if (!existingRows.length) return;
+  const existing = existingRows[0];
 
   const radioYes = document.querySelector('input[name="attending"][value="yes"]');
   const radioNo = document.querySelector('input[name="attending"][value="no"]');
@@ -856,27 +854,18 @@ async function hydrateExistingResponse() {
     const partySize = Math.max(1, parseInt(existing.guests, 10) || selectedInvite.maxParty || 1);
     const maxParty = Math.max(1, selectedInvite.maxParty || 1);
 
-    const attendees = [
-      {
-        name: existing.name || selectedInvite.leadName,
-        mainCourse: existing.mainCourse || '',
-        steakCook: existing.steakCook || '',
-        dietary: existing.dietary || ''
-      }
-    ].concat((existing.extraGuests || []).map((g) => ({
-      name: g.name || '',
-      mainCourse: g.mainCourse || '',
-      steakCook: g.steakCook || '',
-      dietary: g.dietary || ''
-    })));
+    const attendees = existingRows.map((r) => ({
+      name: r.name || '',
+      mainCourse: r.mainCourse || '',
+      steakCook: r.steakCook || '',
+      dietary: r.dietary || ''
+    }));
 
     activeGuestCount = attendees.length || 1;
     buildGuestRows(activeGuestCount, attendees);
     const childCount = document.getElementById('childGuestCount');
     if (childCount) {
-      const existingChildCount = Number.isFinite(parseInt(existing.childGuestCount, 10))
-        ? parseInt(existing.childGuestCount, 10)
-        : (existing.extraGuests || []).filter((g) => !!g.childrensMenu).length;
+      const existingChildCount = existingRows.filter((r) => r.childrensMenu === 'Yes').length;
       childCount.value = String(Math.max(0, Math.min(maxParty, existingChildCount)));
     }
   } else {
@@ -922,32 +911,41 @@ async function submitRSVP() {
     ? Math.max(0, Math.min(partySize, parseInt((document.getElementById('childGuestCount') || { value: '0' }).value, 10) || 0))
     : 0;
 
-  const primary = attendees[0] || {};
-  const extraGuests = attendees.slice(1).map((g, idx, arr) => ({
-    name: g.name,
-    mainCourse: g.mainCourse,
-    steakCook: g.steakCook,
-    dietary: g.dietary,
-    childrensMenu: attending === 'yes' ? idx >= (arr.length - childGuestCount) : false
-  }));
+  const message = document.getElementById('message').value.trim();
+  const date = new Date().toLocaleDateString('en-GB');
 
-  const entry = {
-    inviteId: selectedInvite.id,
-    inviteType: selectedInvite.inviteType,
-    maxParty: selectedInvite.maxParty,
-    name: selectedInvite.displayName || selectedInvite.leadName,
-    attending,
-    guests: String(partySize),
-    mainCourse: primary.mainCourse || '',
-    steakCook: primary.steakCook || '',
-    dietary: primary.dietary || '',
-    childGuestCount: String(childGuestCount),
-    primaryChildrensMenu: false,
-    extraGuests,
-    song: '',
-    message: document.getElementById('message').value.trim(),
-    date: new Date().toLocaleDateString('en-GB')
-  };
+  let newEntries;
+  if (attending === 'yes') {
+    newEntries = attendees.map((guest, idx) => ({
+      inviteId: selectedInvite.id,
+      inviteType: selectedInvite.inviteType,
+      maxParty: selectedInvite.maxParty,
+      name: guest.name,
+      attending,
+      guests: String(partySize),
+      mainCourse: guest.mainCourse || '',
+      steakCook: guest.steakCook || '',
+      dietary: guest.dietary || '',
+      childrensMenu: idx >= (partySize - childGuestCount) ? 'Yes' : 'No',
+      message: idx === 0 ? message : '',
+      date
+    }));
+  } else {
+    newEntries = [{
+      inviteId: selectedInvite.id,
+      inviteType: selectedInvite.inviteType,
+      maxParty: selectedInvite.maxParty,
+      name: selectedInvite.leadName,
+      attending,
+      guests: '0',
+      mainCourse: '',
+      steakCook: '',
+      dietary: '',
+      childrensMenu: 'No',
+      message,
+      date
+    }];
+  }
 
   isSubmitting = true;
   const submitBtn = document.getElementById('submitBtn');
@@ -956,14 +954,8 @@ async function submitRSVP() {
 
   try {
     const existingList = await getRSVPs();
-    const existingIndex = existingList.findIndex((r) => (r.inviteId && r.inviteId === selectedInvite.id) || normalize(r.name) === normalize(selectedInvite.leadName));
-
-    if (existingIndex >= 0) {
-      existingList[existingIndex] = { ...existingList[existingIndex], ...entry };
-      await replaceAllRSVPs(existingList);
-    } else {
-      await saveRSVP(entry);
-    }
+    const filtered = existingList.filter((r) => !(r.inviteId && r.inviteId === selectedInvite.id));
+    await replaceAllRSVPs([...filtered, ...newEntries]);
 
     document.getElementById('successBox').style.display = 'block';
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
